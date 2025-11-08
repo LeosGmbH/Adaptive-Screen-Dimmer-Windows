@@ -11,7 +11,7 @@ Automatically dims your screen when it detects bright content to prevent eye str
 - 🔧 **Customizable**: Adjust sensitivity and dimming strength
 
 ## Installation
-1. Clone this repository
+1. Clone this repository or download the .py and .bat File
 2. Install requirements:
    ```
    pip install mss numpy pywin32
@@ -37,20 +37,8 @@ MAX_OPACITY = 200
 CHECK_INTERVAL = 0.05
 ```
 
-## Uploading to GitHub
-1. Create a new repository on GitHub (without a README or .gitignore)
-2. Run the following commands in the project directory:
-   ```
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git branch -M main
-   git remote add origin <your-repository-url>
-   git push -u origin main
-   ```
-
 ## Why Use This?
-Tired of being flashed by bright white screens while watching videos or browsing? This script automatically dims your screen when it gets too bright, protecting your eyes from strain.
+Tired of being flashed by bright screens while watching videos or browsing? This script automatically dims your screen when it gets too bright, protecting your eyes from strain.
 
 ## How It Works
 1. Measures average screen brightness
@@ -62,5 +50,3 @@ Tired of being flashed by bright white screens while watching videos or browsing
 - Windows 7+
 - Python 3.6+
 - Primary monitor resolution: 1920x1080 (modify code for other resolutions)
-
-> **Note**: For best results, run as Administrator
