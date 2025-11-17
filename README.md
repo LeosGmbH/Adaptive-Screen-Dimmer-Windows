@@ -48,3 +48,12 @@ Tired of being flashed by bright screens while watching videos or browsing? This
 - Windows 7+
 - Python 3.6+
 - Primary monitor resolution: 1920x1080 (modify code for other resolutions)
+
+
+## 🤝 Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any improvements.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
