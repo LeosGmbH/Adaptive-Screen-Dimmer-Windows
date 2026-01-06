@@ -4,6 +4,9 @@ Automatically dims your screen when it detects bright content to prevent eye str
 
 ## Features
 - 🛡️ **Eye Protection**: Reduces eye strain from bright screens
+- 🖥️ **GUI Interface**: Benutzerfreundliches Kontrollpanel (Englisch/Deutsch)
+- 📊 **Live Logs**: View brightness and dimming levels in real-time
+- 🖲️ **Multi-Monitor Support**: Choose which monitor to dim
 - ⚙️ **Auto-Adjusting**: Dynamically adjusts dimming based on screen brightness
 - ⏱️ **Fast Response**: Checks screen brightness every 50ms
 - 🔧 **Customizable**: Adjust sensitivity and dimming strength
@@ -18,6 +21,15 @@ Automatically dims your screen when it detects bright content to prevent eye str
    ```
    adaptive_dimmer_START.bat
    ```
+
+## Usage
+1. **Start Program**: Double-click `adaptive_dimmer_START.bat`
+2. **GUI Window Opens**: A control panel appears with:
+   - **Bildschirm Auswahl**: Select which monitor to dim (for multi-monitor setups)
+   - **Status**: Current brightness and dimming level
+   - **Logs**: Real-time log output from the dimmer
+   - **START Button**: Begin automatic dimming
+   - **STOP Button**: Stop dimming and hide overlay
 
 ## Configuration
 Modify these parameters in `adaptive_dimmer.py`:
@@ -39,15 +51,19 @@ CHECK_INTERVAL = 0.05
 Tired of being flashed by bright screens while watching videos or browsing? This script automatically dims your screen when it gets too bright, protecting your eyes from strain.
 
 ## How It Works
-1. Measures average screen brightness
-2. Calculates needed dimming based on your thresholds
-3. Creates a transparent overlay that darkens the screen
-4. Adjusts in real-time as content changes
+1. GUI opens with control panel
+2. Select target monitor
+3. Press START to begin monitoring
+4. Measures average screen brightness every 50ms
+5. Calculates needed dimming based on your thresholds
+6. Creates a transparent overlay that darkens the screen
+7. Adjusts in real-time as content changes
+8. Logs all activity in the GUI window
 
 ## Requirements
 - Windows 7+
 - Python 3.6+
-- Primary monitor resolution: 1920x1080 (modify code for other resolutions)
+
 
 
 ## 🤝 Contributing
