@@ -9,9 +9,9 @@ import ctypes
 import threading
 
 # Parameters
-THRESHOLD_START = 40  # Dimming starts at this brightness
-THRESHOLD_MAX = 130    # Maximum dimming is reached at this brightness
-MAX_OPACITY = 200      # 0–255 (higher = darker)
+THRESHOLD_START = 25   # Dimming starts at this brightness
+THRESHOLD_MAX = 100    # Maximum dimming is reached at this brightness (tuned to your ~98 max)
+MAX_OPACITY = 240      # 0–255 (higher = darker)
 CHECK_INTERVAL = 0.05  # Faster reaction
 
 class AdaptiveDimmer:
@@ -20,6 +20,10 @@ class AdaptiveDimmer:
         self.running = True
         self.current_opacity = 0
         self.target_opacity = 0
+        self.screen_width = 0
+        self.screen_height = 0
+        self.monitor_left = 0
+        self.monitor_top = 0
         
     def measure_brightness(self):
         """Measures the average screen brightness"""
@@ -73,10 +77,15 @@ class AdaptiveDimmer:
                     win32gui.EndPaint(hwnd, ps)
                     return 0
                 elif msg == win32con.WM_DESTROY:
+                    self.running = False
                     win32gui.PostQuitMessage(0)
                     return 0
                 elif msg == win32con.WM_ERASEBKGND:
                     return 1  # Prevents flickering
+                elif msg == win32con.WM_CLOSE:
+                    self.running = False
+                    win32gui.DestroyWindow(hwnd)
+                    return 0
                 return win32gui.DefWindowProc(hwnd, msg, wp, lp)
             
             # Register window class
@@ -92,19 +101,16 @@ class AdaptiveDimmer:
             except:
                 pass  # Class already registered
             
-            # Primary monitor in full size - HARD CODED
-            user32 = ctypes.windll.user32
-            screen_width = user32.GetSystemMetrics(0)
-            screen_height = user32.GetSystemMetrics(1)
-            
-            # If still not 1920x1080, then force with ctypes
-            if screen_width != 1920 or screen_height != 1080:
-                print(f"  WARNING: Detected size {screen_width}x{screen_height}")
-                print(f"  Setting to 1920x1080...")
-                screen_width = 1920
-                screen_height = 1080
-            
-            print(f"  DEBUG: Using size: {screen_width}x{screen_height}")
+            # Get primary monitor bounds (respects DPI scaling)
+            monitor = win32api.MonitorFromPoint((0, 0))
+            info = win32api.GetMonitorInfo(monitor)
+            left, top, right, bottom = info["Monitor"]
+            self.monitor_left = left
+            self.monitor_top = top
+            self.screen_width = right - left
+            self.screen_height = bottom - top
+
+            print(f"  DEBUG: Using size: {self.screen_width}x{self.screen_height} at ({self.monitor_left},{self.monitor_top})")
             
             # Create window - FORCE FULLSCREEN
             self.hwnd = win32gui.CreateWindowEx(
@@ -115,8 +121,8 @@ class AdaptiveDimmer:
                 className,
                 "",
                 win32con.WS_POPUP | win32con.WS_VISIBLE,
-                -10, -10,  # Slightly negative for safety
-                screen_width + 20, screen_height + 20,  # Slightly larger
+                self.monitor_left - 1, self.monitor_top - 1,  # Slightly negative for safety
+                self.screen_width + 2, self.screen_height + 2,  # Slightly larger to cover edges
                 None, None, hinst, None
             )
             
@@ -134,13 +140,13 @@ class AdaptiveDimmer:
             win32gui.SetWindowPos(
                 self.hwnd,
                 win32con.HWND_TOPMOST,
-                -10, -10,
-                screen_width + 20, screen_height + 20,
+                self.monitor_left - 1, self.monitor_top - 1,
+                self.screen_width + 2, self.screen_height + 2,
                 win32con.SWP_NOACTIVATE | win32con.SWP_SHOWWINDOW
             )
             
             # Again with MoveWindow
-            win32gui.MoveWindow(self.hwnd, -10, -10, screen_width + 20, screen_height + 20, True)
+            win32gui.MoveWindow(self.hwnd, self.monitor_left - 1, self.monitor_top - 1, self.screen_width + 2, self.screen_height + 2, True)
             
             # Check what actually happened
             rect = win32gui.GetWindowRect(self.hwnd)
@@ -148,11 +154,11 @@ class AdaptiveDimmer:
             actual_height = rect[3] - rect[1]
             
             print(f"✓ Overlay created (HWND: {self.hwnd})")
-            print(f"  Target size: {screen_width}x{screen_height}")
+            print(f"  Target size: {self.screen_width}x{self.screen_height}")
             print(f"  Window size: {actual_width}x{actual_height}")
             print(f"  Position: ({rect[0]}, {rect[1]})")
             
-            if actual_width < screen_width or actual_height < screen_height:
+            if actual_width < self.screen_width or actual_height < self.screen_height:
                 print(f"  ⚠️  WARNING: Window is too small!")
             
         except Exception as e:
@@ -207,23 +213,41 @@ class AdaptiveDimmer:
         print("\nPress CTRL+C to exit\n")
         
         self.create_overlay()
-        
+
+        # Run monitor loop in a background thread so the window message pump stays responsive
+        monitor_thread = threading.Thread(target=self.monitor_loop, daemon=True)
+        monitor_thread.start()
+
         try:
-            self.monitor_loop()
+            # Lightweight message pump to keep the overlay responsive
+            while self.running:
+                win32gui.PumpWaitingMessages()
+                time.sleep(0.01)
         except KeyboardInterrupt:
             print("\n\n✓ Program is terminating...")
+            self.running = False
+            if self.hwnd:
+                win32gui.PostMessage(self.hwnd, win32con.WM_CLOSE, 0, 0)
         except Exception as e:
             print(f"\n\nERROR: {e}")
+            self.running = False
         finally:
+            monitor_thread.join(timeout=1)
             if self.hwnd:
-                win32gui.DestroyWindow(self.hwnd)
+                try:
+                    win32gui.DestroyWindow(self.hwnd)
+                except Exception:
+                    pass
             print("✓ Overlay closed")
-            # Exit directly without "Press ENTER"
             sys.exit(0)
 
 def main():
     # Check admin rights
     try:
+        try:
+            ctypes.windll.user32.SetProcessDPIAware()
+        except Exception:
+            pass
         is_admin = ctypes.windll.shell32.IsUserAnAdmin()
         if not is_admin:
             print("⚠️  WARNING: Program is not running as administrator")
