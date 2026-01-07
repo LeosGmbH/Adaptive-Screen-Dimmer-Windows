@@ -1,20 +1,15 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
+﻿# Visual Studio
+.vs/
+.vscode/
 
-/.vs/Adaptive-Screen-Dimmer-Windows/CopilotIndices/17.14.1290.42047
-/.vs/Adaptive-Screen-Dimmer-Windows/FileContentIndex
-/.vs/Adaptive-Screen-Dimmer-Windows/v17
-/.vs
-
-# Python / build artifacts
+# Python
 __pycache__/
 *.pyc
 .pytest_cache/
 .venv/
-dist/
-build/
-*.spec
 
-# Editor configs
-.vscode/
+# Build artifacts
+build/
+dist/
+*.spec
+*.exe
