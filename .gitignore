@@ -6,3 +6,15 @@
 /.vs/Adaptive-Screen-Dimmer-Windows/FileContentIndex
 /.vs/Adaptive-Screen-Dimmer-Windows/v17
 /.vs
+
+# Python / build artifacts
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+dist/
+build/
+*.spec
+
+# Editor configs
+.vscode/

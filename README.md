@@ -1,75 +1,80 @@
-# Adaptive-Screen-Dimmer-Windows
+# Adaptive Screen Dimmer (Windows)
 
-Automatically dims your screen when it detects bright content to prevent eye strain and flash blindness.
+Automatically dims your screen when content gets too bright to reduce eye strain and flash blindness. Includes a simple GUI and multi‑monitor support.
 
 ## Features
-- 🛡️ **Eye Protection**: Reduces eye strain from bright screens
-- 🖥️ **GUI Interface**: Benutzerfreundliches Kontrollpanel (Englisch/Deutsch)
-- 📊 **Live Logs**: View brightness and dimming levels in real-time
-- 🖲️ **Multi-Monitor Support**: Choose which monitor to dim
-- ⚙️ **Auto-Adjusting**: Dynamically adjusts dimming based on screen brightness
-- ⏱️ **Fast Response**: Checks screen brightness every 50ms
-- 🔧 **Customizable**: Adjust sensitivity and dimming strength
+- 🛡️ Eye protection: Smooth overlay dimming based on brightness
+- 🖥️ GUI: Simple dark UI with logs and status
+- 🖲️ Multi‑monitor: Monitor 1, Monitor 2, or both
+- ⚙️ Auto‑adjust: Continuously adapts between thresholds
+- ⏱️ Fast: Checks brightness every ~50ms
+- ⏸ Pause/Resume: Quick control without closing the app
 
-## Installation
-1. Clone this repository or download the .py and .bat File
-2. Install requirements:
+## Quick Start
+You can run either the locally built EXE or the Python script. We do not ship prebuilt binaries.
+
+### Option A: Build EXE locally
+1. Ensure Python 3.10+ is installed.
+2. Build the EXE:
+   ```powershell
+   ./build_exe.bat
    ```
-   pip install mss numpy pywin32
+3. Start the executable: [dist/AdaptiveScreenDimmer.exe](dist/AdaptiveScreenDimmer.exe)
+   - Tip: Right‑click → “Run as administrator” can improve overlay reliability.
+
+### Option B: Python
+1. Install requirements:
+   ```powershell
+   pip install -r requirements.txt
    ```
-3. Run the application:
+2. Start via batch:
+   ```powershell
+   .\adaptive_dimmer_START.bat
    ```
-   adaptive_dimmer_START.bat
+   or directly:
+   ```powershell
+   pythonw adaptive_dimmer.py
    ```
 
-## Usage
-1. **Start Program**: Double-click `adaptive_dimmer_START.bat`
-2. **GUI Window Opens**: A control panel appears with:
-   - **Bildschirm Auswahl**: Select which monitor to dim (for multi-monitor setups)
-   - **Status**: Current brightness and dimming level
-   - **Logs**: Real-time log output from the dimmer
-   - **START Button**: Begin automatic dimming
-   - **STOP Button**: Stop dimming and hide overlay
+## Building the EXE
+This project uses PyInstaller to create a one‑file GUI executable. We do not provide prebuilt EXE files; build it locally on your machine.
 
-## Configuration
-Modify these parameters in `adaptive_dimmer.py`:
-```python
-# Dimming starts at this brightness (0-255)
-THRESHOLD_START = 40
-
-# Maximum dimming at this brightness
-THRESHOLD_MAX = 130
-
-# Maximum darkness (0-255, higher = darker)
-MAX_OPACITY = 200
-
-# How often to check brightness (seconds)
-CHECK_INTERVAL = 0.05
+```powershell
+./build_exe.bat
 ```
 
-## Why Use This?
-Tired of being flashed by bright screens while watching videos or browsing? This script automatically dims your screen when it gets too bright, protecting your eyes from strain.
+The build output is placed in [dist/AdaptiveScreenDimmer.exe](dist/AdaptiveScreenDimmer.exe). After building, you can copy this EXE anywhere; it runs without needing Python installed.
 
-## How It Works
-1. GUI opens with control panel
-2. Select target monitor
-3. Press START to begin monitoring
-4. Measures average screen brightness every 50ms
-5. Calculates needed dimming based on your thresholds
-6. Creates a transparent overlay that darkens the screen
-7. Adjusts in real-time as content changes
-8. Logs all activity in the GUI window
+### Notes on repository contents
+- Do not commit build artifacts like `dist/` or `build/` – they are ignored via [.gitignore](.gitignore).
+- If you need to share the EXE, build locally and distribute it outside the repository (e.g., attach to a release).
+
+## Usage
+- On launch, the app auto‑starts and begins monitoring.
+- Select mode: “Nur Monitor 1”, “Nur Monitor 2”, or “Beide Bildschirme”.
+- Use “⏸ Pausieren” / “▶ Fortsetzen” to control dimming.
+- Status shows current brightness and dimming percentage; logs display detailed activity.
+
+## Configuration
+Adjust parameters in [adaptive_dimmer.py](adaptive_dimmer.py):
+```python
+THRESHOLD_START = 25   # Dimming begins above this brightness
+THRESHOLD_MAX = 100    # Maximum dimming reached above this brightness
+MAX_OPACITY = 240      # 0–255 alpha (higher = darker)
+CHECK_INTERVAL = 0.05  # Seconds between brightness checks
+```
 
 ## Requirements
-- Windows 7+
-- Python 3.6+
+- Windows 10/11 recommended (Windows 7+ may work)
+- For Python mode: Python 3.10+ recommended
 
+## Notes & Tips
+- Administrator mode may be required for reliable top‑most overlays in some setups.
+- If overlays do not appear on a monitor, switch the mode and back again.
+- Multi‑monitor coordinates are read via `mss`; unusual DPI/arrangements may need admin.
 
+## Contributing
+PRs and issues are welcome.
 
-## 🤝 Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request for any improvements.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## License
+MIT License — see [LICENSE](LICENSE).
