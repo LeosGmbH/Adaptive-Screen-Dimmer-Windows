@@ -2,6 +2,7 @@
 Overlay window management for screen dimming
 """
 import time
+import traceback
 import win32gui
 import win32con
 import win32api
@@ -18,12 +19,18 @@ class OverlayManager:
         self.target_opacity = {}
         self.logger = logger
         self.switching_monitor = False
+        self.overlay_counter = {}  # Track overlay creation counter per monitor
     
     def create_overlay(self, monitor_id):
         """Creates a transparent full-screen overlay for a specific monitor"""
         try:
+            # Increment counter for unique class names
+            counter = self.overlay_counter.get(monitor_id, 0) + 1
+            self.overlay_counter[monitor_id] = counter
+            
             hinst = win32api.GetModuleHandle(None)
-            className = f"AdaptiveDimOverlay_Mon{monitor_id}"
+            # Use counter to make class name unique for each overlay instance
+            className = f"AdaptiveDimOverlay_Mon{monitor_id}_v{counter}"
             
             # Store reference to self for wndProc closure
             overlay_manager_ref = self
@@ -39,11 +46,14 @@ class OverlayManager:
                     win32gui.EndPaint(hwnd, ps)
                     return 0
                 elif msg == win32con.WM_DESTROY:
-                    # Clean up when window is destroyed
+                    if DEBUG_LOGGING:
+                        overlay_manager_ref.logger.log(f"WM_DESTROY for monitor {monitor_id} overlay v{counter}")
                     return 0
                 elif msg == win32con.WM_ERASEBKGND:
                     return 1
                 elif msg == win32con.WM_CLOSE:
+                    if DEBUG_LOGGING:
+                        overlay_manager_ref.logger.log(f"WM_CLOSE for monitor {monitor_id} overlay v{counter}")
                     # Just destroy the window, don't modify the dict
                     # The dict will be cleaned up by destroy_overlay
                     win32gui.DestroyWindow(hwnd)
@@ -57,10 +67,13 @@ class OverlayManager:
             wndClass.hCursor = win32gui.LoadCursor(0, win32con.IDC_ARROW)
             wndClass.hbrBackground = win32gui.GetStockObject(win32con.BLACK_BRUSH)
             
+            # Always register new class (unique per counter)
             try:
                 win32gui.RegisterClass(wndClass)
-            except:
-                pass
+            except Exception as e:
+                # Class might already exist, that's ok
+                if DEBUG_LOGGING:
+                    self.logger.log(f"Class {className} registration: {e}")
             
             # Get monitor information
             try:
@@ -85,12 +98,10 @@ class OverlayManager:
             # Destroy existing overlay if present and handle is valid
             old_hwnd = self.hwnds.get(monitor_id)
             if old_hwnd:
-                try:
-                    # Try to destroy - if it fails, it's already gone
-                    win32gui.PostMessage(old_hwnd, win32con.WM_CLOSE, 0, 0)
-                    time.sleep(0.1)
-                except:
-                    pass
+                # DON'T destroy here - just mark as invalid
+                # The window will be cleaned up by Windows when it's ready
+                self.logger.log(f"Marking old overlay for monitor {monitor_id} as invalid")
+                # Don't call DestroyWindow here - it causes race conditions!
             
             # Create window
             hwnd = win32gui.CreateWindowEx(
@@ -132,10 +143,7 @@ class OverlayManager:
             
             win32gui.MoveWindow(hwnd, monitor_left - 1, monitor_top - 1, screen_width + 2, screen_height + 2, True)
             
-            # Small delay to ensure window is fully created
-            time.sleep(0.05)
-            
-            self.logger.log(f"Overlay erstellt fuer Monitor {monitor_id}: {screen_width}x{screen_height} @ ({monitor_left},{monitor_top})")
+            self.logger.log(f"Overlay erstellt fuer Monitor {monitor_id} (v{counter}): {screen_width}x{screen_height} @ ({monitor_left},{monitor_top})")
             
         except Exception as e:
             self.logger.log(f"ERROR: Overlay konnte nicht erstellt werden: {e}")
@@ -166,40 +174,52 @@ class OverlayManager:
             # Check if window handle still exists and is valid
             hwnd = self.hwnds.get(monitor_id)
             if hwnd:
+                # Verify window exists using IsWindow
+                import ctypes
+                if not ctypes.windll.user32.IsWindow(hwnd):
+                    self.logger.log(f"Window handle {hwnd} for monitor {monitor_id} is not a valid window")
+                    self.hwnds[monitor_id] = None
+                    return False
+                
                 try:
+                    # Verify handle is valid by trying to use it
                     win32gui.SetLayeredWindowAttributes(
                         hwnd, 
                         0,
                         int(self.current_opacity[monitor_id]), 
                         win32con.LWA_ALPHA
                     )
+                    return True  # Success
                 except Exception as e:
-                    # Window handle became invalid - log but don't remove from dict
-                    # It will be recreated on next toggle if needed
-                    if DEBUG_LOGGING:
-                        self.logger.log(f"Window handle for monitor {monitor_id} invalid: {e}")
+                    # Window handle became invalid - mark it as None so it gets recreated
+                    self.logger.log(f"Window handle for monitor {monitor_id} invalid, marking for recreation: {e}")
+                    self.hwnds[monitor_id] = None
+                    return False
+            else:
+                # No valid handle
+                return False
         except Exception as e:
-            if DEBUG_LOGGING:
-                self.logger.log(f"Error setting opacity for monitor {monitor_id}: {e}")
+            self.logger.log(f"Error setting opacity for monitor {monitor_id}: {e}")
+            return False
     
     def destroy_overlay(self, monitor_id):
         """Destroy overlay for a specific monitor"""
         hwnd = self.hwnds.get(monitor_id)
         
         if hwnd:
-            # Remove from dictionaries first to prevent further access
-            self.hwnds.pop(monitor_id, None)
-            self.current_opacity.pop(monitor_id, None)
-            self.target_opacity.pop(monitor_id, None)
-            
-            # Try to post close message
             try:
-                win32gui.PostMessage(hwnd, win32con.WM_CLOSE, 0, 0)
-                self.logger.log(f"Overlay {monitor_id} close message sent")
+                # Directly destroy the window
+                win32gui.DestroyWindow(hwnd)
+                self.logger.log(f"Overlay {monitor_id} destroyed")
             except Exception as e:
-                # If PostMessage fails, window is already gone
+                # If DestroyWindow fails, window is already gone
                 if DEBUG_LOGGING:
-                    self.logger.log(f"Overlay {monitor_id} already closed: {e}")
+                    self.logger.log(f"Overlay {monitor_id} already destroyed: {e}")
+            finally:
+                # Always remove from dictionaries
+                self.hwnds.pop(monitor_id, None)
+                self.current_opacity.pop(monitor_id, None)
+                self.target_opacity.pop(monitor_id, None)
 
     def destroy_all_overlays(self):
         """Destroy all overlays"""
@@ -211,11 +231,11 @@ class OverlayManager:
         self.current_opacity.clear()
         self.target_opacity.clear()
         
-        # Then send close messages
+        # Then destroy windows
         for monitor_id, hwnd in handles_to_destroy:
             if hwnd:
                 try:
-                    win32gui.PostMessage(hwnd, win32con.WM_CLOSE, 0, 0)
+                    win32gui.DestroyWindow(hwnd)
                 except Exception:
                     # Window already closed - this is fine during shutdown
                     pass

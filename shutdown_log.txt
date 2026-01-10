@@ -184,3 +184,142 @@
 [2026-01-10T22:09:28.540] === AdaptiveDimmer.run() ENDED CLEANLY ===
 [2026-01-10T22:09:28.541] Dimmer thread joined
 [2026-01-10T22:09:28.542] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T22:10:51.844] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T22:10:52.980] GUI on_closing() called - stopping dimmer
+[2026-01-10T22:10:52.981] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T22:10:52.982] Waiting for dimmer thread to join
+[2026-01-10T22:10:52.986] run() finally block - joining monitor thread
+[2026-01-10T22:10:53.081] run() finally block - destroying overlays
+[2026-01-10T22:10:53.082] === AdaptiveDimmer.run() ENDED CLEANLY ===
+[2026-01-10T22:10:53.086] Dimmer thread joined
+[2026-01-10T22:10:53.087] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T22:11:00.938] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T22:12:02.490] GUI on_closing() called - stopping dimmer
+[2026-01-10T22:12:02.490] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T22:12:02.491] Waiting for dimmer thread to join
+[2026-01-10T22:12:02.493] run() finally block - joining monitor thread
+[2026-01-10T22:12:03.498] run() finally block - destroying overlays
+[2026-01-10T22:12:03.499] === AdaptiveDimmer.run() ENDED CLEANLY ===
+[2026-01-10T22:12:03.503] Dimmer thread joined
+[2026-01-10T22:12:03.504] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T22:12:08.694] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T22:12:21.790] GUI on_closing() called - stopping dimmer
+[2026-01-10T22:12:21.791] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T22:12:21.792] Waiting for dimmer thread to join
+[2026-01-10T22:12:21.795] run() finally block - joining monitor thread
+[2026-01-10T22:12:21.796] run() finally block - destroying overlays
+[2026-01-10T22:12:21.796] === AdaptiveDimmer.run() ENDED CLEANLY ===
+[2026-01-10T22:12:21.798] Dimmer thread joined
+[2026-01-10T22:12:21.798] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T22:13:05.119] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T22:13:57.940] GUI on_closing() called - stopping dimmer
+[2026-01-10T22:13:57.941] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T22:13:57.942] Waiting for dimmer thread to join
+[2026-01-10T22:13:57.947] run() finally block - joining monitor thread
+[2026-01-10T22:13:57.997] run() finally block - destroying overlays
+[2026-01-10T22:13:57.998] === AdaptiveDimmer.run() ENDED CLEANLY ===
+[2026-01-10T22:13:58.001] Dimmer thread joined
+[2026-01-10T22:13:58.002] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T22:15:57.640] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T22:16:21.062] GUI on_closing() called - stopping dimmer
+[2026-01-10T22:16:21.063] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T22:16:21.064] run() finally block - joining monitor thread
+[2026-01-10T22:16:21.064] Waiting for dimmer thread to join
+[2026-01-10T22:16:22.072] run() finally block - destroying overlays
+[2026-01-10T22:16:22.073] === AdaptiveDimmer.run() ENDED CLEANLY ===
+[2026-01-10T22:16:22.074] Dimmer thread joined
+[2026-01-10T22:16:22.075] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T22:17:29.583] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T22:17:32.366] GUI on_closing() called - stopping dimmer
+[2026-01-10T22:17:32.366] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T22:17:32.367] run() finally block - joining monitor thread
+[2026-01-10T22:17:32.367] Waiting for dimmer thread to join
+[2026-01-10T22:17:32.568] run() finally block - destroying overlays
+[2026-01-10T22:17:32.571] === AdaptiveDimmer.run() ENDED CLEANLY ===
+[2026-01-10T22:17:32.574] Dimmer thread joined
+[2026-01-10T22:17:32.574] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T22:18:07.279] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T22:18:39.382] GUI on_closing() called - stopping dimmer
+[2026-01-10T22:18:39.383] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T22:18:39.384] Waiting for dimmer thread to join
+[2026-01-10T22:18:39.393] run() finally block - joining monitor thread
+[2026-01-10T22:18:39.393] run() finally block - destroying overlays
+[2026-01-10T22:18:39.394] === AdaptiveDimmer.run() ENDED CLEANLY ===
+[2026-01-10T22:18:39.395] Dimmer thread joined
+[2026-01-10T22:18:39.396] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T22:19:15.208] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T22:19:27.212] GUI on_closing() called - stopping dimmer
+[2026-01-10T22:19:27.213] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T22:19:27.213] run() finally block - joining monitor thread
+[2026-01-10T22:19:27.214] Waiting for dimmer thread to join
+[2026-01-10T22:19:27.236] run() finally block - destroying overlays
+[2026-01-10T22:19:27.237] === AdaptiveDimmer.run() ENDED CLEANLY ===
+[2026-01-10T22:19:27.239] Dimmer thread joined
+[2026-01-10T22:19:27.240] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T22:22:10.078] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T22:23:03.969] GUI on_closing() called - stopping dimmer
+[2026-01-10T22:23:03.970] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T22:23:03.971] Waiting for dimmer thread to join
+[2026-01-10T22:23:03.979] run() finally block - joining monitor thread
+[2026-01-10T22:23:03.989] run() finally block - destroying overlays
+[2026-01-10T22:23:03.991] === AdaptiveDimmer.run() ENDED CLEANLY ===
+[2026-01-10T22:23:03.994] Dimmer thread joined
+[2026-01-10T22:23:03.995] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T22:24:06.432] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T22:24:28.914] GUI on_closing() called - stopping dimmer
+[2026-01-10T22:24:28.915] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T22:24:28.916] Waiting for dimmer thread to join
+[2026-01-10T22:24:28.917] run() finally block - joining monitor thread
+[2026-01-10T22:24:28.945] run() finally block - destroying overlays
+[2026-01-10T22:24:28.946] === AdaptiveDimmer.run() ENDED CLEANLY ===
+[2026-01-10T22:24:28.949] Dimmer thread joined
+[2026-01-10T22:24:28.949] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T22:25:00.876] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T22:25:09.938] GUI on_closing() called - stopping dimmer
+[2026-01-10T22:25:09.938] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T22:25:09.939] Waiting for dimmer thread to join
+[2026-01-10T22:25:09.944] run() finally block - joining monitor thread
+[2026-01-10T22:25:09.956] run() finally block - destroying overlays
+[2026-01-10T22:25:09.957] === AdaptiveDimmer.run() ENDED CLEANLY ===
+[2026-01-10T22:25:09.960] Dimmer thread joined
+[2026-01-10T22:25:09.961] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T22:25:38.279] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T22:26:02.160] GUI on_closing() called - stopping dimmer
+[2026-01-10T22:26:02.161] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T22:26:02.162] Waiting for dimmer thread to join
+[2026-01-10T22:26:02.165] run() finally block - joining monitor thread
+[2026-01-10T22:26:02.256] run() finally block - destroying overlays
+[2026-01-10T22:26:02.256] === AdaptiveDimmer.run() ENDED CLEANLY ===
+[2026-01-10T22:26:02.259] Dimmer thread joined
+[2026-01-10T22:26:02.259] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T22:30:08.350] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T22:31:11.579] GUI on_closing() called - stopping dimmer
+[2026-01-10T22:31:11.579] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T22:31:11.580] Waiting for dimmer thread to join
+[2026-01-10T22:31:11.588] run() finally block - joining monitor thread
+[2026-01-10T22:31:11.680] run() finally block - destroying overlays
+[2026-01-10T22:31:11.682] === AdaptiveDimmer.run() ENDED CLEANLY ===
+[2026-01-10T22:31:11.687] Dimmer thread joined
+[2026-01-10T22:31:11.687] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T22:37:38.044] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T22:38:02.306] GUI on_closing() called - stopping dimmer
+[2026-01-10T22:38:02.307] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T22:38:02.308] Waiting for dimmer thread to join
+[2026-01-10T22:38:02.358] run() finally block - destroying overlays
+[2026-01-10T22:38:02.360] === AdaptiveDimmer.run() ENDED CLEANLY ===
+[2026-01-10T22:38:02.361] Dimmer thread joined
+[2026-01-10T22:38:02.361] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T22:38:28.514] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T22:39:26.146] GUI on_closing() called - stopping dimmer
+[2026-01-10T22:39:26.147] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T22:39:26.149] Waiting for dimmer thread to join
+[2026-01-10T22:39:28.154] Dimmer thread joined
+[2026-01-10T22:39:28.155] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T22:45:19.133] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T22:46:15.971] GUI on_closing() called - stopping dimmer
+[2026-01-10T22:46:15.972] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T22:46:15.973] Waiting for dimmer thread to join
+[2026-01-10T22:46:15.987] run() finally block - destroying overlays
+[2026-01-10T22:46:15.992] === AdaptiveDimmer.run() ENDED CLEANLY ===
+[2026-01-10T22:46:15.992] Dimmer thread joined
+[2026-01-10T22:46:15.993] === GUI SHUTDOWN COMPLETE ===
