@@ -147,6 +147,18 @@ class DimmerGUI:
         )
         self.resume_button.pack(side=tk.LEFT, padx=5, pady=5)
         
+        self.recalibrate_button = tk.Button(
+            action_frame,
+            text="NEU KALIBRIEREN",
+            command=self.recalibrate_brightness,
+            bg="#4CAF50",
+            fg=THEME_FG,
+            font=("Segoe UI", 9, "bold"),
+            width=18,
+            cursor="hand2"
+        )
+        self.recalibrate_button.pack(side=tk.LEFT, padx=5, pady=5)
+        
         # Chart
         chart_frame = tk.LabelFrame(
             self.root,
@@ -253,6 +265,13 @@ class DimmerGUI:
         self.dimmer_thread = threading.Thread(target=self.dimmer.run, daemon=True)
         self.dimmer_thread.start()
         
+        # Give dimmer time to start overlays
+        time.sleep(0.5)
+        
+        # AUTO-CALIBRATE on startup
+        self.add_log("Auto-Kalibrierung: Messe Helligkeit ohne Overlay...")
+        self.recalibrate_brightness()
+        
         self.pause_button.config(state=tk.NORMAL)
         self.resume_button.config(state=tk.DISABLED)
         self.add_log("Abdunkler gestartet!")
@@ -281,6 +300,31 @@ class DimmerGUI:
         self.pause_button.config(state=tk.NORMAL)
         self.resume_button.config(state=tk.DISABLED)
     
+    def recalibrate_brightness(self):
+        """Recalibrate baseline brightness for all active monitors"""
+        if not self.active or not self.dimmer:
+            return
+        
+        self.add_log("Kalibriere Helligkeit...")
+        
+        # Temporarily hide overlay for accurate measurement
+        for monitor_id in self.dimmer.active_monitors:
+            self.dimmer.set_overlay_opacity(monitor_id, 0, force_immediate=True)
+        
+        time.sleep(0.15)  # Wait for overlay to disappear
+        
+        # Measure true brightness with overlay hidden
+        for monitor_id in self.dimmer.active_monitors:
+            true_brightness = self.dimmer.measure_brightness(monitor_id)
+            self.dimmer.calibration_brightness[monitor_id] = true_brightness
+            self.dimmer.calibration_opacity[monitor_id] = 0
+            self.add_log(f"Monitor {monitor_id}: Kalibriert auf {true_brightness:.1f}")
+        
+        time.sleep(0.05)
+        
+        # Let normal dimming resume automatically
+        self.add_log("Kalibrierung abgeschlossen - Adaptive Regelung aktiv!")
+    
     def on_closing(self):
         """Handle window close"""
         if DEBUG_LOGGING:
@@ -289,10 +333,17 @@ class DimmerGUI:
         if self.active and self.dimmer:
             self.add_log("Beende Abdunkler...")
             self.dimmer.write_shutdown_log("GUI on_closing() called - stopping dimmer")
+            
+            # First, stop all overlay processes
+            self.add_log("Stoppe alle Overlay-Prozesse...")
+            self.dimmer.write_shutdown_log("Destroying all overlay processes")
+            self.dimmer.overlay_manager.destroy_all_overlays()
+            
+            # Then stop the monitoring loop
             self.dimmer.running = False
             
-            # Don't try to destroy windows manually - let the dimmer thread handle it
-            self.dimmer.write_shutdown_log("Stopping dimmer, overlays will be cleaned up by run() thread")
+            # Close log file
+            self.dimmer.write_shutdown_log("Closing log file")
             self.dimmer.logger.close_log_file()
         
         if self.dimmer_thread and self.dimmer_thread.is_alive():

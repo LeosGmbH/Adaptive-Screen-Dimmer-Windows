@@ -3,14 +3,14 @@ Constants and Configuration for Adaptive Screen Dimmer
 """
 
 # Brightness thresholds
-THRESHOLD_START = 25
-THRESHOLD_MAX = 100
+THRESHOLD_START = 80    # Dimming begins above this brightness (relative bright)
+THRESHOLD_MAX = 200     # Maximum dimming reached at this brightness (very bright / white)
 
 # Opacity settings
 MAX_OPACITY = 240
 
 # Timing
-CHECK_INTERVAL = 0.1  # Increased from 0.05 to reduce flicker
+CHECK_INTERVAL = 0.05  # 50ms - fast real-time adaptation
 
 # Debug settings
 DEBUG_LOGGING = False  # Set to True for verbose logging
@@ -18,7 +18,7 @@ DEBUG_LOGGING = False  # Set to True for verbose logging
 # GUI settings
 WINDOW_GEOMETRY = "750x600"
 MIN_WINDOW_SIZE = (500, 400)
-MAX_CHART_POINTS = 120  # ~6s of data at 0.1s interval
+MAX_CHART_POINTS = 120  # ~6s of data at 0.05s interval
 
 # Colors for chart lines (raw, dimmed)
 LINE_COLOR_PAIRS = [

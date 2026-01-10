@@ -33,7 +33,7 @@ class ChartManager:
         self.ax.grid(color=THEME_GRID, alpha=0.5)
         self.ax.set_ylim(0, 200)
         self.ax.set_xlim(0, self.max_points)
-        self.ax.set_xlabel("Samples (~0.1s)", color=THEME_TEXT)
+        self.ax.set_xlabel("Samples (~0.05s)", color=THEME_TEXT)
         self.ax.set_ylabel("Brightness", color=THEME_TEXT)
         self.ax.tick_params(colors=THEME_TEXT)
         
@@ -75,7 +75,6 @@ class ChartManager:
                 text.set_color(THEME_TEXT)
         
         self.chart_dirty = True
-    
     def push_brightness(self, monitor_id, raw_value, dimmed_value):
         """Append brightness samples for monitor"""
         if monitor_id not in self.brightness_raw:

@@ -30,6 +30,11 @@ class AdaptiveDimmer:
         self.current_opacity = self.overlay_manager.current_opacity
         self.target_opacity = self.overlay_manager.target_opacity
         self.switching_monitor = False
+        
+        # Brightness calibration
+        self.calibration_brightness = {}  # monitor_id -> brightness measured at last calibration
+        self.calibration_opacity = {}     # monitor_id -> opacity during calibration
+            
     
     def log(self, message):
         """Console log"""
@@ -41,6 +46,7 @@ class AdaptiveDimmer:
     
     def create_overlay(self, monitor_id):
         """Create overlay for monitor"""
+        # Just create the overlay - no pre-measurement
         return self.overlay_manager.create_overlay(monitor_id)
     
     def set_overlay_opacity(self, monitor_id, opacity, force_immediate=False):
@@ -52,12 +58,24 @@ class AdaptiveDimmer:
         return self.brightness_measurer.measure_brightness(monitor_id)
     
     def calculate_target_opacity(self, raw_estimate, strength):
-        """Calculate target opacity based on brightness and strength"""
+        """
+        Calculate target opacity based on brightness and strength
+        
+        Args:
+            raw_estimate: Raw brightness estimate
+            strength: Dim strength factor (0.0 - 1.0)
+            
+        Returns:
+            int: Target opacity value (0-255)
+        """
         if raw_estimate > THRESHOLD_MAX:
-            return MAX_OPACITY * strength
+            # At maximum dimming, use 75% of max opacity as the actual maximum
+            # This means 100% slider strength = 0.75 * MAX_OPACITY physical dimming
+            # So strength 1.0 ? opacity 180 (75% of 240)
+            return (0.75 * MAX_OPACITY) * strength
         elif raw_estimate > THRESHOLD_START:
             ratio = (raw_estimate - THRESHOLD_START) / (THRESHOLD_MAX - THRESHOLD_START)
-            return ratio * MAX_OPACITY * strength
+            return ratio * (0.75 * MAX_OPACITY) * strength
         else:
             return 0
     
@@ -100,9 +118,25 @@ class AdaptiveDimmer:
                             continue
                         
                         try:
-                            # Measure brightness
+                            # Fast brightness measurement - NO overlay hiding
                             measured = self.measure_brightness(monitor_id)
-                            raw_estimate = max(0, min(255, measured))
+                            
+                            # Smart brightness estimation
+                            current_opacity = self.current_opacity.get(monitor_id, 0)
+                            
+                            if monitor_id in self.calibration_brightness:
+                                # Estimate true brightness from dimmed measurement
+                                # Formula: measured = true * (1 - opacity/255)
+                                # So: true = measured / (1 - opacity/255)
+                                attenuation = max(0.05, 1 - current_opacity / 255.0)
+                                estimated_true = measured / attenuation
+                                raw_estimate = estimated_true
+                            else:
+                                # No calibration yet - use measured value
+                                raw_estimate = measured
+                            
+
+                            raw_estimate = max(0, min(255, raw_estimate))
                             
                             # Calculate target opacity
                             strength = max(0.0, min(1.0, self.gui.dim_strength.get() / 100.0)) if self.gui else 1.0
@@ -110,10 +144,9 @@ class AdaptiveDimmer:
                             
                             # Store and apply target
                             self.target_opacity[monitor_id] = new_target
-                            success = self.set_overlay_opacity(monitor_id, new_target)
                             
-                            if not success and DEBUG_LOGGING:
-                                self.log(f"Monitor {monitor_id}: Failed to set opacity")
+                            # Apply opacity smoothly
+                            success = self.set_overlay_opacity(monitor_id, new_target, force_immediate=False)
                             
                             # Get current opacity for display
                             current_alpha = self.current_opacity.get(monitor_id, 0)
@@ -179,8 +212,15 @@ class AdaptiveDimmer:
             self.write_shutdown_log("KeyboardInterrupt received")
             self.log("\nProgramm wird beendet...")
             self.running = False
+        except Exception as e:
+            self.write_shutdown_log(f"Exception in run: {e}")
+            self.running = False
         finally:
             self.write_shutdown_log("run() finally block - destroying overlays")
+            self.running = False
+            # Wait a bit for monitor_loop to finish
+            time.sleep(0.3)
+            # Kill all overlay processes
             self.overlay_manager.destroy_all_overlays()
             self.log("? Overlay processes terminated")
             self.write_shutdown_log("=== AdaptiveDimmer.run() ENDED CLEANLY ===")

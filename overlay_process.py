@@ -104,16 +104,16 @@ def create_overlay(monitor_id, opacity_file):
                 # WM_QUIT received
                 break
             
-            # Update opacity from file every 100ms
-            if time.time() - last_update >= 0.1:
+            # Update opacity from file every 50ms for fast response
+            if time.time() - last_update >= 0.05:
                 try:
                     with open(opacity_file, 'r') as f:
                         target_opacity = int(float(f.read().strip()))
                         target_opacity = max(0, min(255, target_opacity))
                         
-                        # Smooth interpolation
-                        if abs(current_opacity - target_opacity) > 1:
-                            current_opacity = current_opacity + (target_opacity - current_opacity) * 0.2
+                        # Very fast interpolation - reach target in 1-2 frames
+                        if abs(current_opacity - target_opacity) > 2:
+                            current_opacity = current_opacity + (target_opacity - current_opacity) * 0.8
                         else:
                             current_opacity = target_opacity
                         
@@ -125,7 +125,7 @@ def create_overlay(monitor_id, opacity_file):
                 
                 last_update = time.time()
             
-            time.sleep(0.01)
+            time.sleep(0.01)  # 10ms sleep - very responsive
         
         print(f"Overlay process for monitor {monitor_id} exiting")
         

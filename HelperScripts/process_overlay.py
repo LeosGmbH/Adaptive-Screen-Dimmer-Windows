@@ -7,6 +7,7 @@ import sys
 import subprocess
 import tempfile
 import time
+import psutil
 
 
 class ProcessOverlayManager:
@@ -95,16 +96,19 @@ class ProcessOverlayManager:
             
             opacity = max(0, min(255, int(opacity)))
             
+            # Minimal interpolation for near-immediate response
             if force_immediate:
                 self.current_opacity[monitor_id] = opacity
             else:
-                # Smooth interpolation (calculated here, actual is done in process)
+                # Very fast interpolation (0.7 = 70% of target immediately)
                 current = self.current_opacity.get(monitor_id, 0)
                 diff = opacity - current
                 
-                if abs(diff) > 1:
-                    self.current_opacity[monitor_id] = current + (diff * 0.15)
+                if abs(diff) > 2:
+                    # Fast transition - reach target in ~2-3 frames
+                    self.current_opacity[monitor_id] = current + (diff * 0.7)
                 else:
+                    # Snap to target for small differences
                     self.current_opacity[monitor_id] = opacity
             
             # Write to file
@@ -125,17 +129,21 @@ class ProcessOverlayManager:
         try:
             if monitor_id in self.processes:
                 process = self.processes[monitor_id]
+                
+                # First try graceful termination
                 process.terminate()
                 
-                # Wait up to 1 second for clean exit
+                # Wait up to 0.5 seconds for clean exit
                 try:
-                    process.wait(timeout=1)
+                    process.wait(timeout=0.5)
+                    self.logger.log(f"Overlay process terminated gracefully for monitor {monitor_id}")
                 except subprocess.TimeoutExpired:
                     # Force kill if doesn't exit
                     process.kill()
+                    process.wait(timeout=0.5)
+                    self.logger.log(f"Overlay process force-killed for monitor {monitor_id}")
                 
                 del self.processes[monitor_id]
-                self.logger.log(f"Overlay process terminated for monitor {monitor_id}")
             
             # Clean up opacity file
             if monitor_id in self.opacity_files:
@@ -153,11 +161,29 @@ class ProcessOverlayManager:
             
         except Exception as e:
             self.logger.log(f"ERROR destroying overlay for monitor {monitor_id}: {e}")
+            import traceback
+            traceback.print_exc()
     
     def destroy_all_overlays(self):
         """Kill all overlay processes"""
-        for monitor_id in list(self.processes.keys()):
+        monitor_ids = list(self.processes.keys())
+        for monitor_id in monitor_ids:
             self.destroy_overlay(monitor_id)
+        
+        # Double-check: Force kill any remaining processes
+        try:
+            current_pid = os.getpid()
+            current_process = psutil.Process(current_pid)
+            
+            # Kill all child processes
+            for child in current_process.children(recursive=True):
+                try:
+                    self.logger.log(f"Force killing child process PID {child.pid}")
+                    child.kill()
+                except:
+                    pass
+        except Exception as e:
+            self.logger.log(f"Error in destroy_all_overlays cleanup: {e}")
     
     def is_overlay_running(self, monitor_id):
         """Check if overlay process is still running"""
