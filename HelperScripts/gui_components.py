@@ -33,7 +33,7 @@ class ChartManager:
         self.ax.grid(color=THEME_GRID, alpha=0.5)
         self.ax.set_ylim(0, 200)
         self.ax.set_xlim(0, self.max_points)
-        self.ax.set_xlabel("Samples (~0.05s)", color=THEME_TEXT)
+        self.ax.set_xlabel("Samples (~0.1s)", color=THEME_TEXT)
         self.ax.set_ylabel("Brightness", color=THEME_TEXT)
         self.ax.tick_params(colors=THEME_TEXT)
         

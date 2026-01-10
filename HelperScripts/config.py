@@ -10,12 +10,15 @@ THRESHOLD_MAX = 100
 MAX_OPACITY = 240
 
 # Timing
-CHECK_INTERVAL = 0.05
+CHECK_INTERVAL = 0.1  # Increased from 0.05 to reduce flicker
+
+# Debug settings
+DEBUG_LOGGING = False  # Set to True for verbose logging
 
 # GUI settings
 WINDOW_GEOMETRY = "750x600"
 MIN_WINDOW_SIZE = (500, 400)
-MAX_CHART_POINTS = 120  # ~6s of data at 0.05s interval
+MAX_CHART_POINTS = 120  # ~6s of data at 0.1s interval
 
 # Colors for chart lines (raw, dimmed)
 LINE_COLOR_PAIRS = [

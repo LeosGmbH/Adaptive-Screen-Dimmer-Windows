@@ -5,7 +5,7 @@ import time
 import threading
 import win32gui
 import traceback
-from .config import THRESHOLD_START, THRESHOLD_MAX, MAX_OPACITY, CHECK_INTERVAL
+from .config import THRESHOLD_START, THRESHOLD_MAX, MAX_OPACITY, CHECK_INTERVAL, DEBUG_LOGGING
 from .brightness import BrightnessMeasurer
 from .overlay import OverlayManager
 from .logger import Logger
@@ -32,6 +32,9 @@ class AdaptiveDimmer:
         self.current_opacity = self.overlay_manager.current_opacity
         self.target_opacity = self.overlay_manager.target_opacity
         self.switching_monitor = False
+        
+        # Track overlay creation time to avoid feedback loop
+        self.overlay_creation_time = {}
     
     def log(self, message):
         """Console log"""
@@ -44,6 +47,8 @@ class AdaptiveDimmer:
     def create_overlay(self, monitor_id):
         """Create overlay for monitor"""
         self.overlay_manager.create_overlay(monitor_id)
+        # Track when this overlay was created
+        self.overlay_creation_time[monitor_id] = time.time()
     
     def set_overlay_opacity(self, monitor_id, opacity, force_immediate=False):
         """Set overlay opacity"""
@@ -75,6 +80,8 @@ class AdaptiveDimmer:
     def monitor_loop(self):
         """Main loop for brightness monitoring"""
         last_log_time = time.time()
+        last_console_log_time = time.time()
+        
         try:
             while self.running:
                 if self.paused:
@@ -83,41 +90,73 @@ class AdaptiveDimmer:
                 
                 # Avoid race while switching monitor overlays
                 if self.switching_monitor:
-                    self.log("DEBUG monitor_loop: switching_monitor active - waiting 50ms")
-                    time.sleep(0.05)
+                    if DEBUG_LOGGING:
+                        self.log("DEBUG monitor_loop: switching_monitor active - waiting")
+                    time.sleep(0.1)
                     continue
                 
                 with self.monitor_lock:
                     if not self.running:
                         break
                     
-                    self.log(f"DEBUG monitor_loop: active_monitors={self.active_monitors}")
-                    log_entries = []
+                    # Create safe copy of active monitors
+                    active_monitors_copy = list(self.active_monitors)
                     
-                    for monitor_id in self.active_monitors:
-                        # Measure brightness
-                        measured = self.measure_brightness(monitor_id)
+                    if DEBUG_LOGGING:
+                        self.log(f"DEBUG monitor_loop: active_monitors={active_monitors_copy}")
+                    log_entries = []
+                    console_log_entries = []
+                    
+                    for monitor_id in active_monitors_copy:
+                        # Skip if monitor overlay doesn't exist or is invalid
+                        hwnd = self.hwnds.get(monitor_id)
+                        if not hwnd:
+                            if DEBUG_LOGGING:
+                                self.log(f"DEBUG: Skipping monitor {monitor_id} - no valid hwnd")
+                            continue
                         
-                        # Calculate raw estimate
-                        alpha_before = self.current_opacity.get(monitor_id, 0)
-                        raw_estimate = self.brightness_measurer.calculate_raw_estimate(measured, alpha_before)
-                        
-                        # Calculate target opacity
-                        strength = max(0.0, min(1.0, self.gui.dim_strength.get() / 100.0)) if self.gui else 1.0
-                        self.target_opacity[monitor_id] = self.calculate_target_opacity(raw_estimate, strength)
-                        
-                        # Apply opacity
-                        self.set_overlay_opacity(monitor_id, self.target_opacity[monitor_id])
-                        
-                        # Calculate dimmed brightness for logging
-                        current_alpha = self.current_opacity.get(monitor_id, 0)
-                        dimmed_brightness = self.brightness_measurer.calculate_dimmed_brightness(raw_estimate, current_alpha)
-                        
-                        # Send to GUI
-                        if self.gui:
-                            self.gui.push_brightness(monitor_id, raw_estimate, dimmed_brightness)
-                        
-                        log_entries.append((monitor_id, raw_estimate, current_alpha, dimmed_brightness))
+                        try:
+                            # Measure brightness (raw screen capture)
+                            measured = self.measure_brightness(monitor_id)
+                            
+                            # Use measured brightness directly - NO COMPENSATION
+                            # This prevents feedback loops and instability
+                            raw_estimate = measured
+                            
+                            # Clamp to reasonable range
+                            raw_estimate = max(0, min(255, raw_estimate))
+                            
+                            # Calculate target opacity based on measured brightness
+                            strength = max(0.0, min(1.0, self.gui.dim_strength.get() / 100.0)) if self.gui else 1.0
+                            new_target = self.calculate_target_opacity(raw_estimate, strength)
+                            
+                            # Store new target
+                            self.target_opacity[monitor_id] = new_target
+                            
+                            # Apply opacity with smooth interpolation
+                            self.set_overlay_opacity(monitor_id, new_target)
+                            
+                            # Get current opacity for display
+                            current_alpha = self.current_opacity.get(monitor_id, 0)
+                            
+                            # Calculate dimmed brightness for display
+                            dimmed_brightness = raw_estimate * (1 - current_alpha / 255.0)
+                            
+                            # Send to GUI
+                            if self.gui:
+                                self.gui.push_brightness(monitor_id, raw_estimate, dimmed_brightness)
+                            
+                            log_entries.append((monitor_id, raw_estimate, current_alpha, dimmed_brightness))
+                            console_log_entries.append((monitor_id, measured, raw_estimate, current_alpha, new_target))
+                        except Exception as e:
+                            self.log(f"ERROR processing monitor {monitor_id}: {e}")
+                            traceback.print_exc()
+                    
+                    # Console log every 2 seconds for debugging
+                    if time.time() - last_console_log_time >= 2.0:
+                        for mid, meas, raw, curr_a, targ_a in console_log_entries:
+                            self.log(f"Mon{mid}: Meas={meas:.1f} Raw={raw:.1f} CurrAlpha={curr_a:.1f} TargetAlpha={targ_a:.1f}")
+                        last_console_log_time = time.time()
                     
                     # Log to file every second
                     if time.time() - last_log_time >= 1.0:

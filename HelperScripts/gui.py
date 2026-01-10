@@ -7,7 +7,8 @@ import tkinter as tk
 from tkinter import ttk
 import traceback
 import win32gui
-from .config import WINDOW_GEOMETRY, MIN_WINDOW_SIZE, THEME_BG, THEME_FG, THEME_BUTTON
+import win32con
+from .config import WINDOW_GEOMETRY, MIN_WINDOW_SIZE, THEME_BG, THEME_FG, THEME_BUTTON, DEBUG_LOGGING
 from .dimmer import AdaptiveDimmer
 from .gui_components import ChartManager, MonitorSelector
 
@@ -187,50 +188,90 @@ class DimmerGUI:
         """Handle monitor checkbox toggle"""
         selected = self.monitor_selector.get_selected()
         
-        if not selected:
-            self.add_log("WARNING: Mindestens ein Monitor muss gewaehlt sein")
-            self.monitor_selector.set_selected(self.monitor_selector.selected_monitors)
-            return
+        # Allow empty selection - user can disable all monitors
+        # (removed the check that prevented this)
         
         self.monitor_selector.selected_monitors = selected
         
-        if not self.dimmer:
+        if not self.dimmer or not self.active:
             return
         
-        self.add_log(f"Monitor-Toggle: {self.dimmer.active_monitors} -> {selected}")
+        self.add_log(f"Monitor-Toggle START: {self.dimmer.active_monitors} -> {selected}")
         
-        # Set flag and wait
-        self.dimmer.switching_monitor = True
-        self.dimmer.overlay_manager.switching_monitor = True
-        time.sleep(0.1)
-        
-        with self.dimmer.monitor_lock:
+        # Run toggle in separate thread to avoid blocking GUI
+        def toggle_monitors_async():
             try:
-                # Remove overlays
-                for mid in list(self.dimmer.active_monitors):
-                    if mid not in selected:
-                        self.add_log(f"Entferne Overlay fuer Monitor {mid}")
-                        self.dimmer.overlay_manager.destroy_overlay(mid)
-                        time.sleep(0.05)
+                # Signal monitor_loop to pause
+                self.dimmer.switching_monitor = True
+                self.dimmer.overlay_manager.switching_monitor = True
                 
-                time.sleep(0.1)
+                # Wait LONGER for monitor_loop to see the flag and stop
+                time.sleep(0.3)
                 
-                # Add overlays
-                for mid in selected:
-                    if mid not in self.dimmer.hwnds or not self.dimmer.hwnds.get(mid):
-                        self.add_log(f"Erstelle Overlay fuer Monitor {mid}")
-                        self.dimmer.create_overlay(mid)
-                        time.sleep(0.05)
+                # Now safely modify overlays
+                with self.dimmer.monitor_lock:
+                    # Get current state
+                    current_monitors = set(self.dimmer.active_monitors)
+                    target_monitors = set(selected)
+                    
+                    # Remove overlays no longer needed
+                    to_remove = current_monitors - target_monitors
+                    for mid in to_remove:
+                        if mid in self.dimmer.hwnds:
+                            self.add_log(f"Entferne Overlay fuer Monitor {mid}")
+                            self.dimmer.overlay_manager.destroy_overlay(mid)
+                    
+                    # Wait a bit to ensure windows are closed
+                    if to_remove:
+                        time.sleep(0.2)
+                    
+                    # Add new overlays (including re-creating existing ones if handle is invalid)
+                    for mid in selected:
+                        # Check if overlay exists and is valid
+                        needs_creation = (
+                            mid not in self.dimmer.hwnds or 
+                            not self.dimmer.hwnds.get(mid)
+                        )
+                        
+                        if needs_creation:
+                            # IMPORTANT: Clear opacity values BEFORE creating overlay
+                            # to prevent feedback loop from old values
+                            self.dimmer.current_opacity[mid] = 0
+                            self.dimmer.target_opacity[mid] = 0
+                            
+                            self.add_log(f"Erstelle Overlay fuer Monitor {mid}")
+                            self.dimmer.create_overlay(mid)
+                            time.sleep(0.05)
+                            
+                            # Ensure opacity is really 0 after creation
+                            self.dimmer.current_opacity[mid] = 0
+                            self.dimmer.target_opacity[mid] = 0
+                    
+                    # Update active monitors list
+                    self.dimmer.active_monitors = list(selected)
                 
-                self.dimmer.active_monitors = selected
-                self.chart_manager.sync_monitors(selected)
-                self.add_log(f"Monitor-Toggle abgeschlossen: {selected}")
+                # Update chart (must be done in GUI thread)
+                self.root.after(0, lambda: self.chart_manager.sync_monitors(selected))
+                
+                # Clear switching flag AFTER a delay to ensure monitor_loop sees clean state
+                time.sleep(0.15)
+                self.dimmer.switching_monitor = False
+                self.dimmer.overlay_manager.switching_monitor = False
+                
+                if selected:
+                    self.add_log(f"Monitor-Toggle COMPLETE: {selected}")
+                else:
+                    self.add_log("Monitor-Toggle COMPLETE: Alle Monitore deaktiviert")
+                
             except Exception as e:
                 self.add_log(f"FEHLER in on_monitor_toggle: {e}")
                 traceback.print_exc()
-            finally:
                 self.dimmer.switching_monitor = False
                 self.dimmer.overlay_manager.switching_monitor = False
+        
+        # Start toggle in background thread
+        toggle_thread = threading.Thread(target=toggle_monitors_async, daemon=True)
+        toggle_thread.start()
     
     def _redraw_chart_callback(self):
         """Periodic chart redraw callback"""
@@ -292,23 +333,16 @@ class DimmerGUI:
     
     def on_closing(self):
         """Handle window close"""
-        self.add_log("DEBUG on_closing: start shutdown")
+        if DEBUG_LOGGING:
+            self.add_log("DEBUG on_closing: start shutdown")
         
         if self.active and self.dimmer:
             self.add_log("Beende Abdunkler...")
             self.dimmer.write_shutdown_log("GUI on_closing() called - stopping dimmer")
             self.dimmer.running = False
             
-            self.dimmer.write_shutdown_log("Destroying overlay windows")
-            for monitor_id, hwnd in list(self.dimmer.hwnds.items()):
-                if hwnd:
-                    try:
-                        self.add_log(f"Schliesse Overlay fuer Monitor {monitor_id}")
-                        win32gui.DestroyWindow(hwnd)
-                    except Exception as e:
-                        self.add_log(f"Fehler beim Schliessen von Monitor {monitor_id}: {e}")
-            
-            self.dimmer.write_shutdown_log("Closing log file")
+            # Don't try to destroy windows manually - let the dimmer thread handle it
+            self.dimmer.write_shutdown_log("Stopping dimmer, overlays will be cleaned up by run() thread")
             self.dimmer.logger.close_log_file()
         
         if self.dimmer_thread and self.dimmer_thread.is_alive():
@@ -322,6 +356,8 @@ class DimmerGUI:
         if self.dimmer:
             self.dimmer.write_shutdown_log("=== GUI SHUTDOWN COMPLETE ===")
         
-        self.add_log("DEBUG on_closing: destroy root")
+        if DEBUG_LOGGING:
+            self.add_log("DEBUG on_closing: destroy root")
         self.root.destroy()
-        self.add_log("DEBUG on_closing: shutdown complete")
+        if DEBUG_LOGGING:
+            self.add_log("DEBUG on_closing: shutdown complete")

@@ -7,11 +7,13 @@ import time
 import sys
 import ctypes
 from HelperScripts.gui import DimmerGUI
+from HelperScripts.config import DEBUG_LOGGING
 
 
 def main():
     """Main entry point for the application"""
-    print("🔍 DEBUG: main() started")
+    if DEBUG_LOGGING:
+        print("🔍 DEBUG: main() started")
     
     # Set DPI awareness
     try:
@@ -29,13 +31,16 @@ def main():
         pass
     
     # Create and run GUI
-    print("🔍 DEBUG: Creating DimmerGUI...")
+    if DEBUG_LOGGING:
+        print("🔍 DEBUG: Creating DimmerGUI...")
     try:
         gui = DimmerGUI()
-        print("🔍 DEBUG: DimmerGUI created successfully")
-        print("🔍 DEBUG: Starting mainloop...")
+        if DEBUG_LOGGING:
+            print("🔍 DEBUG: DimmerGUI created successfully")
+            print("🔍 DEBUG: Starting mainloop...")
         gui.root.mainloop()
-        print("🔍 DEBUG: mainloop ended")
+        if DEBUG_LOGGING:
+            print("🔍 DEBUG: mainloop ended")
     except Exception as e:
         print(f"❌ ERROR in GUI creation: {e}")
         import traceback
