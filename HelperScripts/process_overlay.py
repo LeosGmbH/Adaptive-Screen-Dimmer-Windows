@@ -49,8 +49,33 @@ class ProcessOverlayManager:
             self.current_opacity[monitor_id] = 0
             self.target_opacity[monitor_id] = 0
             
-            # Start process
-            cmd = [sys.executable, self.overlay_script, str(monitor_id), opacity_file]
+            # CRITICAL FIX: Find python.exe explicitly, not sys.executable!
+            # sys.executable could point to the frozen EXE, causing infinite recursion
+            if getattr(sys, 'frozen', False):
+                # Running as frozen EXE - overlay_process.py should be bundled
+                # Use sys.executable but call overlay_process directly
+                self.logger.log(f"ERROR: Process-based overlay not supported in frozen EXE mode!")
+                self.logger.log(f"Please use thread-based overlay instead.")
+                return False
+            else:
+                # Running as script - ensure we use python.exe
+                python_exe = sys.executable
+                
+                # If sys.executable is pythonw.exe, that's fine
+                # But make sure it's actually python, not something else
+                if not python_exe.endswith(('python.exe', 'pythonw.exe')):
+                    # Try to find python in the same directory
+                    exe_dir = os.path.dirname(python_exe)
+                    for candidate in ['python.exe', 'pythonw.exe']:
+                        candidate_path = os.path.join(exe_dir, candidate)
+                        if os.path.exists(candidate_path):
+                            python_exe = candidate_path
+                            break
+            
+            # Start process with explicit python interpreter
+            cmd = [python_exe, self.overlay_script, str(monitor_id), opacity_file]
+            
+            self.logger.log(f"Starting overlay process: {' '.join(cmd)}")
             
             process = subprocess.Popen(
                 cmd,
@@ -72,7 +97,7 @@ class ProcessOverlayManager:
                 self.logger.log(f"stderr: {stderr.decode()}")
                 return False
             
-            self.logger.log(f"Overlay process started for monitor {monitor_id}")
+            self.logger.log(f"Overlay process started for monitor {monitor_id} (PID: {process.pid})")
             return True
             
         except Exception as e:

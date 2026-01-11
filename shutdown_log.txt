@@ -471,3 +471,91 @@
 [2026-01-10T23:33:36.890] Waiting for dimmer thread to join
 [2026-01-10T23:33:38.897] Dimmer thread joined
 [2026-01-10T23:33:38.898] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T23:35:03.887] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:35:05.347] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:35:05.643] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:35:06.782] GUI on_closing() called - stopping dimmer
+[2026-01-10T23:35:06.783] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T23:35:06.784] Waiting for dimmer thread to join
+[2026-01-10T23:35:06.884] run() finally block - destroying overlays
+[2026-01-10T23:35:06.915] === AdaptiveDimmer.run() ENDED CLEANLY ===
+[2026-01-10T23:35:06.916] Dimmer thread joined
+[2026-01-10T23:35:06.916] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T23:35:07.397] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:35:07.526] GUI on_closing() called - stopping dimmer
+[2026-01-10T23:35:07.526] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T23:35:07.526] Waiting for dimmer thread to join
+[2026-01-10T23:35:07.627] run() finally block - destroying overlays
+[2026-01-10T23:35:07.658] === AdaptiveDimmer.run() ENDED CLEANLY ===
+[2026-01-10T23:35:07.659] Dimmer thread joined
+[2026-01-10T23:35:07.659] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T23:35:08.063] GUI on_closing() called - stopping dimmer
+[2026-01-10T23:35:08.064] Stopping dimmer, overlays will be cleaned up by run() thread
+[2026-01-10T23:35:08.064] Waiting for dimmer thread to join
+[2026-01-10T23:35:08.098] run() finally block - destroying overlays
+[2026-01-10T23:35:08.100] === AdaptiveDimmer.run() ENDED CLEANLY ===
+[2026-01-10T23:35:08.101] Dimmer thread joined
+[2026-01-10T23:35:08.101] === GUI SHUTDOWN COMPLETE ===
+[2026-01-10T23:35:09.401] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:36:27.421] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:36:28.945] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:36:29.204] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:36:52.894] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:36:54.711] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:36:54.962] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:36:56.684] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:36:57.061] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:36:57.108] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:36:57.374] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:00.552] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:01.934] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:01.964] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:02.069] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:02.653] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:03.084] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:03.483] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:03.759] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:09.300] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:13.516] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:15.688] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:15.716] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:15.722] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:17.467] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:17.823] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:20.934] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:22.287] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:22.437] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:23.102] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:25.399] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:25.400] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:25.583] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:25.667] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:25.855] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:26.284] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:26.673] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:29.482] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:29.500] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:29.588] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:29.597] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:29.620] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:29.629] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:29.841] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:30.816] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:31.477] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:31.490] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:31.743] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:38.533] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:38.564] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:38.684] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:38.720] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:39.607] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:40.679] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:42.759] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:37:42.779] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:38:39.992] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:38:40.030] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:38:40.051] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:38:40.052] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:38:40.793] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:38:41.056] === AdaptiveDimmer.run() STARTED ===
+[2026-01-10T23:38:55.180] === AdaptiveDimmer.run() STARTED ===
